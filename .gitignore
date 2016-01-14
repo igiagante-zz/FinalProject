@@ -5,9 +5,8 @@
 .DS_Store
 /build
 /captures
-
+gradle/*
+*gradlew*
 .idea/
-gradlew*
-gradle/
 *.iml
-*backend/build/*
+*/build/*
