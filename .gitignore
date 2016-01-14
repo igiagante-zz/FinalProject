@@ -10,4 +10,4 @@
 gradlew*
 gradle/
 *.iml
-backend/build/*
+*backend/build/*
