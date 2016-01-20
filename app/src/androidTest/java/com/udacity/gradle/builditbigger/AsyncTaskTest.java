@@ -12,7 +12,7 @@ public class AsyncTaskTest extends AndroidTestCase {
 
     public void testCheckAsyncTaskJoke() {
         try {
-            AsyncTaskJoke jokeTask = new AsyncTaskJoke();
+            AsyncTaskJoke jokeTask = new AsyncTaskJoke(null);
             jokeTask.execute(mContext);
             String joke = jokeTask.get(30, TimeUnit.SECONDS);
             Log.d("joking", joke);

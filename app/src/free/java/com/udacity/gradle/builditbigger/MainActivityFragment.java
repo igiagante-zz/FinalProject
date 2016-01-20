@@ -1,28 +1,16 @@
 package com.udacity.gradle.builditbigger;
 
-import android.content.Context;
-import android.content.Intent;
-import android.os.AsyncTask;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
-import com.example.igiagante.myapplication.backend.myApi.MyApi;
-import com.example.igiagante.mylibrary.JokerActivity;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.extensions.android.json.AndroidJsonFactory;
-import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
-import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
-
-import java.io.IOException;
 
 
 /**
@@ -44,11 +32,12 @@ public class MainActivityFragment extends Fragment {
         jokeButton = (Button) root.findViewById(R.id.joke_button);
 
         mInterstitialAd = new InterstitialAd(getActivity());
-        mInterstitialAd.setAdUnitId(getActivity().getString(R.string.banner_ad_unit_id));
+        mInterstitialAd.setAdUnitId(getActivity().getString(R.string.interstitial_ad_unit_id));
 
         mInterstitialAd.setAdListener(new AdListener() {
             @Override
             public void onAdClosed() {
+                requestNewInterstitial();
                 launchLibraryActivity();
             }
         });
@@ -59,18 +48,17 @@ public class MainActivityFragment extends Fragment {
             public void onClick(View v) {
                 if (mInterstitialAd.isLoaded()) {
                     mInterstitialAd.show();
-                } else {
-                    requestNewInterstitial();
                 }
-                launchLibraryActivity();
             }
         });
+
+        requestNewInterstitial();
 
         return root;
     }
 
-    public void launchLibraryActivity(){
-        new AsyncTaskJoke().execute(getActivity());
+    public void launchLibraryActivity() {
+        new AsyncTaskJoke(mProgressBar).execute(getActivity());
         mProgressBar.setVisibility(View.VISIBLE);
     }
 
@@ -80,47 +68,5 @@ public class MainActivityFragment extends Fragment {
                 .build();
 
         mInterstitialAd.loadAd(adRequest);
-    }
-
-    class AsyncTaskJoke extends AsyncTask<Context, Void, String> {
-        private MyApi myApiService = null;
-        private Context context;
-
-        @Override
-        protected String doInBackground(Context... params) {
-            if(myApiService == null) {  // Only do this once
-                MyApi.Builder builder = new MyApi.Builder(AndroidHttp.newCompatibleTransport(),
-                        new AndroidJsonFactory(), null)
-                        // options for running against local devappserver
-                        // - 10.0.2.2 is localhost's IP address in Android emulator
-                        // - turn off compression when running against local devappserver
-                        .setRootUrl("http://10.0.3.2:8080/_ah/api/")
-                        .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
-                            @Override
-                            public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
-                                abstractGoogleClientRequest.setDisableGZipContent(true);
-                            }
-                        });
-                // end options for devappserver
-                myApiService = builder.build();
-            }
-
-            context = params[0];
-
-            try {
-                return myApiService.giveMeJoke().execute().getData();
-            } catch (IOException e) {
-                return e.getMessage();
-            }
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            Intent intent = new Intent(context, JokerActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.putExtra("joke", result);
-            context.startActivity(intent);
-            mProgressBar.setVisibility(View.INVISIBLE);
-        }
     }
 }

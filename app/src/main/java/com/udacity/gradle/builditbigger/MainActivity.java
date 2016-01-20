@@ -4,9 +4,10 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ProgressBar;
 
-
+/**
+ * @author igiagante on 20/1/16.
+ */
 public class MainActivity extends ActionBarActivity {
 
     @Override
